@@ -16,21 +16,21 @@ class Modular:
 #		elif not rango[0] <= num <= rango[1]:
 #			raise TypeError("Entrada fuera de rango")
 
-		self.rango = rango
-		self.mod = rango[1] - rango[0] + 1
-		self.n = self.RelCongr(num)
+		self.__rango = rango
+		self.__mod = rango[1] - rango[0] + 1
+		self.__numero = self.__BuscarNumeroCongruencia(num)
 
 #  |-----------------------------------------------------------------------------
 
 	@classmethod
-	def convertir(cls, num, rango):
+	def __Convertir(cls, num, rango):
 
 		''' Regresar un obtjeto Modular desde la misma clase '''
 
 		return cls(num, rango)
 
 	@classmethod
-	def SumaResta(cls, a, b, op):
+	def __SumarRestar(cls, a, b, op):
 
 		''' Reutiliza las funciones de suma para un uso más cómodo de
 			la suma por la izquierda '''
@@ -46,7 +46,7 @@ class Modular:
 
 		''' Representación del objeto que se mostrará al usuario '''
 
-		return '{} (mod {})'.format(self.n, self.mod)
+		return '{} (mod {})'.format(self.__numero, self.__mod)
 
 #  |-----------------------------------------------------------------------------
 
@@ -55,34 +55,34 @@ class Modular:
 		''' Sumar un par de elementos donde al menos uno es un objeto
 			de la clase '''
 
-		return self.AddMin(other, "+")
+		return self.__AddMin(other, "+")
 
 	def __radd__(self, other):
 
 		''' Sumar al objeto un elemento por la izquierda '''
 
-		return Modular.SumaResta(self, other,  "+")
+		return Modular.__SumarRestar(self, other,  "+")
 
 	def __sub__(self, other):
 
 		''' Restar un par de elementos donde al menos uno es un objeto
 			de la clase '''
 
-		return self.AddMin(other, "-")
+		return self.__AddMin(other, "-")
 
 	def __rsub__(self, other):
 
 		''' Resta donde el objeto es el segundo elemento '''
 
-		return Modular.SumaResta(self, other,  "-")
+		return Modular.__SumarRestar(self, other,  "-")
 
 #  |-----------------------------------------------------------------------------
 
 	def __int__(self):
 
-		''' Regresa el valor de self.n cuando se aplica int() al objeto '''
+		''' Regresa el valor de self.__numero cuando se aplica int() al objeto '''
 
-		return self.n
+		return self.__numero
 
 #  |-----------------------------------------------------------------------------
 
@@ -91,9 +91,9 @@ class Modular:
 		''' Comparación usando el operador == '''
 
 		if type(other) == Modular:
-			return self.n == other.n
+			return self.__numero == other.__numero
 		elif type(other) == int:
-			return self.n == other
+			return self.__numero == other
 		else:
 			return False
 
@@ -102,47 +102,58 @@ class Modular:
 		''' Comparación usando el operador != '''
 
 		if type(other) == Modular:
-			return self.n != other.n
+			return self.__numero != other.__numero
 		elif type(other) == int:
-			return self.n != other
+			return self.__numero != other
 		else:
 			return False
 #  |-----------------------------------------------------------------------------
 
-	def RelCongr(self, n):
+	def __BuscarNumeroCongruencia(self, n):
 
 		''' Encuentra el número entero positivo dentro del conjunto que sea
-			de la misma clase de congruencia (modulo self.mod) que la entrada n '''
+			de la misma clase de congruencia (modulo self.__mod) que la entrada n '''
 
-		mini = self.rango[0]
-		maxi = self.rango[1]
+		mini = self.__rango[0]
+		maxi = self.__rango[1]
 
 		while not mini <= n <= maxi:
-			n = (n - mini) % self.mod + mini
+			n = (n - mini) % self.__mod + mini
 
 		return n
 #  |-----------------------------------------------------------------------------
 
-	def AddMin(self, other, op):
+	def __AddMin(self, other, op):
 
 		''' Auxiliar para calcular la suma y la resta del grupo '''
 
 		if isinstance(other, int) or isinstance(other, float):
 			if op == "+":
-				return self.n + other
+				return self.__numero + other
 			elif op == "-":
-				return self.n - other
+				return self.__numero - other
 		elif not isinstance(other, Modular):
 			tipo = type(other)
 			raise TypeError(f'La suma no se puede realizar con {tipo}')
-		elif self.rango != other.rango:
+		elif self.__rango != other.__rango:
 			raise TypeError("Los objetos no tienen el mismo rango")
 
 		if op == "+":
-			self.r = self.n + other.n
+			self.r = self.__numero + other.__numero
 		elif op == "-":
-			self.r = self.n - other.n
+			self.r = self.__numero - other.__numero
 
-		self.r = self.RelCongr(self.r)
+		self.r = self.__BuscarNumeroCongruencia(self.r)
 
-		return Modular.convertir(self.r, self.rango)
+		return Modular.__Convertir(self.r, self.__rango)
+
+#  |-----------------------------------------------------------------------------
+
+	def crearMismoModulo(self, num):
+		''' Crea otra instancia del objeto en el mismo rango '''
+
+		return Modular.__Convertir(num, self.__rango)
+
+	def getModulo(self):
+		''' Obtiene el modulo del la instancia '''
+		return self.__mod
